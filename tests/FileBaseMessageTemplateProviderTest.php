@@ -101,20 +101,33 @@ class FileBaseMessageTemplateProviderTest extends PHPUnit_Framework_TestCase
 
 	function testCorrect()
 	{
-		$provider = new FileBaseMessageTemplateProvider(vfsStream::url('home/foo'));
+		$provider = new FileBaseMessageTemplateProvider(vfsStream::url('home/foo'), NULL, FileBaseMessageTemplateProvider::TYPE_PLAIN);
 		$res = $provider->load('first');
 		$this->assertEquals("Cicero", $res->getSubject());
 		$this->assertEquals("Lorem ipsum doler ist", $res->getBody());
+		$this->assertNull($res->getHtml());
 	}
 
 
 
 	function testCorrectWithExtension()
 	{
-		$provider = new FileBaseMessageTemplateProvider(vfsStream::url('home/foo'), 'txt');
+		$provider = new FileBaseMessageTemplateProvider(vfsStream::url('home/foo'), 'txt', FileBaseMessageTemplateProvider::TYPE_PLAIN);
 		$res = $provider->load('second');
 		$this->assertEquals("Cicero", $res->getSubject());
 		$this->assertEquals("Lorem ipsum doler ist", $res->getBody());
+		$this->assertNull($res->getHtml());
+	}
+
+
+
+	function testCorrectOnlyHtml()
+	{
+		$provider = new FileBaseMessageTemplateProvider(vfsStream::url('home/foo'));
+		$res = $provider->load('first');
+		$this->assertEquals("Cicero", $res->getSubject());
+		$this->assertNull($res->getBody());
+		$this->assertEquals("Lorem ipsum doler ist", $res->getHtml());
 	}
 
 }

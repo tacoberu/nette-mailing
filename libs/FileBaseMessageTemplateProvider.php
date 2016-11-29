@@ -19,9 +19,24 @@ class FileBaseMessageTemplateProvider implements MessageTemplateProvider
 {
 
 	/**
+	 * Zdrojové soubory obsahují HTML content. Plain se bude generovat.
+	 */
+	const TYPE_HTML = 'html';
+
+	/**
+	 * Zdrojové soubory obsahují plain content.
+	 */
+	const TYPE_PLAIN = 'plain';
+
+	/**
 	 * @var string
 	 */
 	private $path;
+
+	/**
+	 * @var enum self::TYPE_*
+	 */
+	private $srctype;
 
 	/**
 	 * Extension of filename like .txt, .latte, etc.
@@ -34,12 +49,13 @@ class FileBaseMessageTemplateProvider implements MessageTemplateProvider
 	 * @param string $path Cesta, kde se budou hledat šablony.
 	 * @param string $ext Optional extension of file, because name of template not-corelated with filename.
 	 */
-	function __construct($path, $ext = NULL)
+	function __construct($path, $ext = NULL, $srctype = self::TYPE_HTML)
 	{
 		Validators::assert($path, 'string:1..');
 		Validators::assert($ext, 'string:1..|null');
 		$this->path = $path;
 		$this->ext = $ext;
+		$this->srctype = $srctype;
 	}
 
 
@@ -76,7 +92,12 @@ class FileBaseMessageTemplateProvider implements MessageTemplateProvider
 			throw new RuntimeException("Template subject is mistake. Subject must starts word: `Subject:'.");
 		}
 
-		return new MailContent(ltrim(substr($pair[0], 8)), $pair[1]);
+		switch ($this->srctype) {
+			case self::TYPE_PLAIN:
+				return new MailContent(ltrim(substr($pair[0], 8)), $pair[1]);
+			default:
+				return new MailContent(ltrim(substr($pair[0], 8)), NULL, $pair[1]);
+		}
 	}
 
 }

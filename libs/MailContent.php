@@ -40,10 +40,14 @@ class MailContent extends Nette\Object
 	 * @param string $body
 	 * @param string $html
 	 */
-	function __construct($subject, $body, $html = NULL)
+	function __construct($subject, $body = NULL, $html = NULL)
 	{
 		Validators::assert($subject, 'string:1..');
-		Validators::assert($body, 'string:1..');
+		Validators::assert($body, 'string:1..|null');
+		Validators::assert($html, 'string:1..|null');
+		if (empty($body) && empty($html)) {
+			throw new Nette\Utils\AssertionException('Must be body or html or both. Is any.');
+		}
 		$this->subject = $subject;
 		$this->body = $body;
 		$this->html = $html;
