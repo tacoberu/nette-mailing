@@ -21,7 +21,10 @@
 		"phpunit/phpunit": "^4",
 		"mikey179/vfsStream": "^1.6",
 		"tacoberu/phpcs-coding-standard": "@dev",
-		"sstalle/php7cc": "^1.1"
+		"sstalle/php7cc": "^1.1",
+		"phpmd/phpmd": "^2.5",
+		"latte/latte": "^2.4",
+		"nette/application": "^2.4"
 	},
 	"repositories": [
 		{	"type": "vcs", "url": "git://github.com/tacoberu/phpcs-coding-standard" }

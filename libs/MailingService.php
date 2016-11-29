@@ -41,15 +41,21 @@ class MailingService
 	 */
 	private $provider;
 
+	/**
+	 * @var MessageBuilder
+	 */
+	private $builderFactory;
+
 
 	/**
 	 * @param MessageTemplateProvider $provider
 	 */
-	function __construct(IMailer $mailer, MessageTemplateProvider $provider, Logger $logger)
+	function __construct(IMailer $mailer, MessageTemplateProvider $provider, Logger $logger, BuilderFactory $builder)
 	{
 		$this->mailer = $mailer;
 		$this->logger = $logger;
 		$this->provider = $provider;
+		$this->builderFactory = $builder;
 	}
 
 
@@ -68,7 +74,7 @@ class MailingService
 		Validators::assert($recipient, 'string:1..');
 
 		$template = $this->provider->load($code);
-		$builder = new SimpleMessageBuilder($template);
+		$builder = $this->builderFactory->create($template);
 		$mail = $builder->compose($from, $recipient, $values);
 
 		if ($this->config & self::CONFIG_SEND && $this->mailer) {
