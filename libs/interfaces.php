@@ -6,6 +6,8 @@
 
 namespace Taco\Nette\Mailing;
 
+use Nette\Mail\Message;
+
 
 /**
  * Poskytuje šablony emailů.
@@ -32,11 +34,30 @@ interface MessageBuilder
 {
 
 	/**
-	 * @param string $from
-	 * @param string $recipient
+	 * @param string $from Who is sending this mail.
+	 * @param string $recipient Who is receiving is mail.
+	 * @param MailContent $content
 	 * @param hashtable of string $values
-	 * @return Nette\Mail\Message
+	 * @return Message
 	 */
-	function compose($from, $recipient, array $values = []);
+	function compose($from, $recipient, MailContent $content, array $values = []);
+
+}
+
+
+
+/**
+ * We are listening send of mail.
+ * @author Martin Takáč <martin@takac.name>
+ */
+interface Logger
+{
+
+	/**
+	 * Save mail messages to eml file.
+	 * @param string $name Name of message for information.
+	 * @param Message $mail
+	 */
+	function log($name, Message $mail);
 
 }

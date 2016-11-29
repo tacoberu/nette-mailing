@@ -18,10 +18,23 @@ use Nette\Mail\IMailer;
 class MailingService
 {
 
+	const CONFIG_LOG  = 1;
+	const CONFIG_SEND = 2;
+
+	/**
+	 * @var int Bit-mask.
+	 */
+	private $config = self::CONFIG_LOG;// | self::CONFIG_SEND;
+
 	/**
 	 * @var IMailer
 	 */
 	private $mailer;
+
+	/**
+	 * @var Logger
+	 */
+	private $logger;
 
 	/**
 	 * @var MessageTemplateProvider
@@ -32,9 +45,10 @@ class MailingService
 	/**
 	 * @param MessageTemplateProvider $provider
 	 */
-	function __construct(IMailer $mailer, MessageTemplateProvider $provider)
+	function __construct(IMailer $mailer, MessageTemplateProvider $provider, Logger $logger)
 	{
 		$this->mailer = $mailer;
+		$this->logger = $logger;
 		$this->provider = $provider;
 	}
 
@@ -57,7 +71,13 @@ class MailingService
 		$builder = new SimpleMessageBuilder($template);
 		$mail = $builder->compose($from, $recipient, $values);
 
-		$this->mailer->send($mail);
+		if ($this->config & self::CONFIG_SEND && $this->mailer) {
+			$this->mailer->send($mail);
+		}
+
+		if ($this->config & self::CONFIG_LOG && $this->logger) {
+			$this->logger->log($code, $mail);
+		}
 	}
 
 }
