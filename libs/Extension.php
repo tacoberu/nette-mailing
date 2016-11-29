@@ -6,10 +6,10 @@
 
 namespace Taco\Nette\Mailing;
 
+use InvalidArgumentException;
 use Nette;
 use Nette\DI\CompilerExtension;
 use Tracy\Debugger;
-use InvalidArgumentException;
 
 
 /**
@@ -22,13 +22,16 @@ final class Extension extends CompilerExtension
 	const CONFIG_SEND = 'send';
 	const CONFIG_BOTH = 'both';
 
+	/**
+	 * Default configuration.
+	 * @var array
+	 */
 	private $defaults = [
 		'do' => self::CONFIG_LOG,
 		'log_directory' => '%appDir%/../log/mails',
 		'mail_images_base_path' => '%wwwDir%',
-		'senders' => []
+		'sender' => NULL
 	];
-
 
 
 	function loadConfiguration()
@@ -39,10 +42,20 @@ final class Extension extends CompilerExtension
 		$builder->addDefinition($this->prefix('mailLogger'))
 			->setClass('Taco\Nette\Mailing\FileMailLogger')
 			->setArguments([$config['log_directory']]);
+
+		$builder->addDefinition($this->prefix('mailService'))
+			->setClass('Taco\Nette\Mailing\MailingService')
+			->setArguments([
+				'sender' => $config['sender']
+			]);
 	}
 
 
 
+	/**
+	 * Returns extension configuration.
+	 * @return array
+	 */
 	function getConfig()
 	{
 		$config = $this->validateConfig($this->defaults, $this->config);
@@ -67,6 +80,10 @@ final class Extension extends CompilerExtension
 
 
 
+	/**
+	 * @param string
+	 * @return int
+	 */
 	private function castDo($val)
 	{
 		switch($val) {

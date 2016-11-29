@@ -6,9 +6,9 @@
 
 namespace Taco\Nette\Mailing;
 
+use Nette\Mail\IMailer;
 use Nette\Mail\Message;
 use Nette\Utils\Validators;
-use Nette\Mail\IMailer;
 
 
 /**
@@ -44,38 +44,48 @@ class MailingService
 	/**
 	 * @var MessageBuilder
 	 */
-	private $builderFactory;
+	private $builder;
+
+	/**
+	 * @var string
+	 */
+	private $sender;
 
 
 	/**
+	 * @param IMailer $mailer Service for really sending of mail.
 	 * @param MessageTemplateProvider $provider
+	 * @param Logger $logger We are listening of sending. Optionaly persist every mail to file.
+	 * @param MessageBuilder $builder Making mail from template. Template is plain text, or latte template, etc.
+	 * @param string $sender Default email of sender.
 	 */
-	function __construct(IMailer $mailer, MessageTemplateProvider $provider, Logger $logger, BuilderFactory $builder)
+	function __construct(IMailer $mailer, MessageTemplateProvider $provider, Logger $logger, MessageBuilder $builder, $sender = NULL)
 	{
+		Validators::assert($sender, 'string:1..|null');
 		$this->mailer = $mailer;
 		$this->logger = $logger;
 		$this->provider = $provider;
-		$this->builderFactory = $builder;
+		$this->builder = $builder;
+		$this->sender = $sender;
 	}
 
 
 
 	/**
 	 * @param string $code Name of content, whitch load from provider.
-	 * @param string $from Email of sender.
 	 * @param string $recipient Email of recipient.
 	 * @param hashtable of string $values
+	 * @param string $sender Email of sender.
 	 * @return Message
 	 */
-	function send($code, $from, $recipient, array $values = [])
+	function send($code, $recipient, array $values = [], $sender = NULL)
 	{
 		Validators::assert($code, 'string:1..');
-		Validators::assert($from, 'string:1..');
+		Validators::assert($sender, 'string:1..|null');
 		Validators::assert($recipient, 'string:1..');
+		$sender = $sender ?: $this->sender;
 
-		$template = $this->provider->load($code);
-		$builder = $this->builderFactory->create($template);
-		$mail = $builder->compose($from, $recipient, $values);
+		$mail = $this->builder->compose($sender, $recipient, $this->provider->load($code), $values);
 
 		if ($this->config & self::CONFIG_SEND && $this->mailer) {
 			$this->mailer->send($mail);
