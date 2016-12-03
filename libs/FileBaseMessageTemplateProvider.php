@@ -67,13 +67,19 @@ class FileBaseMessageTemplateProvider implements MessageTemplateProvider
 	function load($name)
 	{
 		Validators::assert($name, 'string:1..');
-		$path = $this->path . DIRECTORY_SEPARATOR . $name;
+		$paths = [
+			$this->makePath(strtr($name, [':' => '/'])),
+			$this->makePath(strtr($name, [':' => '/templates/'])),
+		];
 
-		if ($this->ext) {
-			$path .= '.' . $this->ext;
+		foreach ($paths as $x) {
+			if (file_exists($x)) {
+				$path = $x;
+				break;
+			}
 		}
 
-		if ( ! file_exists($path)) {
+		if ( ! isset($path)) {
 			throw new RuntimeException("Template `{$name}' is not found ({$path}).");
 		}
 
@@ -98,6 +104,21 @@ class FileBaseMessageTemplateProvider implements MessageTemplateProvider
 			default:
 				return new MailContent(ltrim(substr($pair[0], 8)), NULL, $pair[1]);
 		}
+	}
+
+
+
+	/**
+	 * @param string
+	 * @return string
+	 */
+	private function makePath($name)
+	{
+		$path = $this->path . DIRECTORY_SEPARATOR . $name;
+		if ($this->ext) {
+			$path .= '.' . $this->ext;
+		}
+		return $path;
 	}
 
 }

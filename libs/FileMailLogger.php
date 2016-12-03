@@ -49,7 +49,7 @@ class FileMailLogger extends Nette\Object implements Logger
 	{
 		$timestamp = date('Y-m-d H:i:s');
 		$name .= '.' . time();
-		$file = $this->getLogFile($name, $timestamp);
+		$file = $this->requireLogFile($name, $timestamp);
 
 		if (file_exists($file) && filesize($file)) {
 			$file = str_replace(static::LOG_EXTENSION, '.' . uniqid() . static::LOG_EXTENSION, $file);
@@ -66,14 +66,18 @@ class FileMailLogger extends Nette\Object implements Logger
 	 * @param string $timestamp
 	 * @return string
 	 */
-	private function getLogFile($type, $timestamp)
+	private function requireLogFile($type, $timestamp)
 	{
 		preg_match('/^((([0-9]{4})-[0-9]{2})-[0-9]{2}).*/', $timestamp, $fragments);
 
 		$year = $this->logDest . '/' . $fragments[3];
 		$month = $year . '/' . $fragments[2];
 		$day = $month . '/' . $fragments[1];
-		$file = $day . '/' . $type . '.' . static::LOG_EXTENSION;
+		$file = strtr($day . '/' . $type . '.' . static::LOG_EXTENSION, [
+			':' => '_',
+			'?' => '_',
+			'!' => '_',
+		]);
 
 		if ( ! file_exists($day)) {
 			mkdir($day, 0777, TRUE);
