@@ -33,10 +33,18 @@ class FileMailLoggerTest extends PHPUnit_Framework_TestCase
 
 
 
+	function testConfigInvalidFilename()
+	{
+		$this->setExpectedException('Nette\Utils\AssertionException', 'The variable expects to be string in range 1.., string \'\' given.');
+		new FileMailLogger('');
+	}
+
+
+
 	function testConfigFileNotFound()
 	{
-		$this->setExpectedException('RuntimeException', 'Path `\' is not found.');
-		new FileMailLogger('');
+		$this->setExpectedException('RuntimeException', 'Path `none\' is not found.');
+		new FileMailLogger('none');
 	}
 
 

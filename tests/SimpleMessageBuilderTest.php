@@ -6,6 +6,7 @@
 
 namespace Taco\Nette\Mailing;
 
+use Nette\Mail\Message;
 use PHPUnit_Framework_TestCase;
 
 
@@ -19,7 +20,9 @@ class SimpleMessageBuilderTest extends PHPUnit_Framework_TestCase
 	{
 		$content = new MailContent('a', 'b', 'c');
 		$builder = new SimpleMessageBuilder;
-		$mail = $builder->compose('a@dom.cz', 'b@dom.cz', $content);
+		$msg = new Message;
+		$msg->setFrom('a@dom.cz');
+		$mail = $builder->compose($msg, 'b@dom.cz', $content);
 		$this->assertEquals('b', $mail->body);
 		$this->assertEquals('c', $mail->htmlBody);
 		$this->assertEquals('a', $mail->getHeader('Subject'));
@@ -32,8 +35,10 @@ class SimpleMessageBuilderTest extends PHPUnit_Framework_TestCase
 	function testReplaceVars()
 	{
 		$content = new MailContent('a from: %{from}', 'body %{foo} d efg %{foo}', 'html %{foo} d efg %{foo}');
+		$msg = new Message;
+		$msg->setFrom('a@dom.cz');
 		$builder = new SimpleMessageBuilder;
-		$mail = $builder->compose('a@dom.cz', 'b@dom.cz', $content, ['foo' => 'Lorem ipsum doler ist.', 'from' => 'i']);
+		$mail = $builder->compose($msg, 'b@dom.cz', $content, ['foo' => 'Lorem ipsum doler ist.', 'from' => 'i']);
 		$this->assertEquals('body Lorem ipsum doler ist. d efg Lorem ipsum doler ist.', $mail->body);
 		$this->assertEquals('html Lorem ipsum doler ist. d efg Lorem ipsum doler ist.', $mail->htmlBody);
 		$this->assertEquals('a from: i', $mail->getHeader('Subject'));

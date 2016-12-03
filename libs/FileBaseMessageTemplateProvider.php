@@ -80,7 +80,7 @@ class FileBaseMessageTemplateProvider implements MessageTemplateProvider
 		}
 
 		if ( ! isset($path)) {
-			throw new RuntimeException("Template `{$name}' is not found ({$path}).");
+			throw new RuntimeException("Template `{$name}' is not found ({$this->path}/{$name}).");
 		}
 
 		$content = file_get_contents($path);

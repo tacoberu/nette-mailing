@@ -13,11 +13,11 @@
 	},
 	"require": {
 		"php": ">=5.5",
-		"nette/mail": "2.3.*"
+		"nette/mail": "2.3.*",
+		"nette/utils": "^2.3"
 	},
 	"require-dev": {
 		"tracy/tracy": "^2.3",
-		"nette/utils": "^2.3",
 		"phpunit/phpunit": "^4",
 		"mikey179/vfsStream": "^1.6",
 		"tacoberu/phpcs-coding-standard": "@dev",
