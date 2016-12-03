@@ -8,6 +8,7 @@ namespace Taco\Nette\Mailing;
 
 use Nette;
 use Nette\Mail\Message;
+use Nette\Utils\Validators;
 use RuntimeException;
 
 
@@ -32,6 +33,7 @@ class FileMailLogger extends Nette\Object implements Logger
 	 */
 	function __construct($path)
 	{
+		Validators::assert($path, 'string:1..');
 		if ( ! file_exists($path)) {
 			throw new RuntimeException("Path `$path' is not found.");
 		}
@@ -42,14 +44,14 @@ class FileMailLogger extends Nette\Object implements Logger
 
 	/**
 	 * Log mail messages to eml file.
-	 * @param string $name
+	 * @param string $name Name of email, like 'contact' or 'Catalog:contact'.
 	 * @param Message $mail
 	 */
 	function log($name, Message $mail)
 	{
-		$timestamp = date('Y-m-d H:i:s');
+		Validators::assert($name, 'string:1..');
 		$name .= '.' . time();
-		$file = $this->requireLogFile($name, $timestamp);
+		$file = $this->requireLogFile($name);
 
 		if (file_exists($file) && filesize($file)) {
 			$file = str_replace(static::LOG_EXTENSION, '.' . uniqid() . static::LOG_EXTENSION, $file);
@@ -61,26 +63,23 @@ class FileMailLogger extends Nette\Object implements Logger
 
 
 	/**
-	 * If not already created, creat edirectory path that stickes to standard described above
+	 * If not already created, creat edirectory path that stickes to standard described above.
 	 * @param string $type
 	 * @param string $timestamp
 	 * @return string
 	 */
-	private function requireLogFile($type, $timestamp)
+	private function requireLogFile($type)
 	{
-		preg_match('/^((([0-9]{4})-[0-9]{2})-[0-9]{2}).*/', $timestamp, $fragments);
-
-		$year = $this->logDest . '/' . $fragments[3];
-		$month = $year . '/' . $fragments[2];
-		$day = $month . '/' . $fragments[1];
-		$file = strtr($day . '/' . $type . '.' . static::LOG_EXTENSION, [
-			':' => '_',
-			'?' => '_',
-			'!' => '_',
+		$file = implode(DIRECTORY_SEPARATOR, [
+			$this->logDest,
+			date('Y'),
+			date('Y-m'),
+			date('Y-m-d'),
+			self::saniteFilename($type /*. '?=>!:'*/ . '.' . static::LOG_EXTENSION)
 		]);
 
-		if ( ! file_exists($day)) {
-			mkdir($day, 0777, TRUE);
+		if ( ! file_exists(dirname($file))) {
+			mkdir(dirname($file), 0777, TRUE);
 		}
 
 		if ( ! file_exists($file)) {
@@ -88,6 +87,17 @@ class FileMailLogger extends Nette\Object implements Logger
 		}
 
 		return $file;
+	}
+
+
+
+	/**
+	 * @param string
+	 * @return string
+	 */
+	private static function saniteFilename($name)
+	{
+		return strtr($name, ':?!=>', '_____');
 	}
 
 }
