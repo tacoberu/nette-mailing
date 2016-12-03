@@ -18,15 +18,14 @@ class SimpleMessageBuilder implements MessageBuilder
 {
 
 	/**
-	 * @param string $from Email of sender.
+	 * @param Message $mail
 	 * @param string $recipient Email of recipient.
 	 * @param MailContent $content
 	 * @param hashtable of string $values
 	 * @return Message
 	 */
-	function compose($from, $recipient, MailContent $content, array $values = [])
+	function compose(Message $mail, $recipient, MailContent $content, array $values = [])
 	{
-		Validators::assert($from, 'email');
 		Validators::assert($recipient, 'email');
 
 		$args = [];
@@ -34,16 +33,18 @@ class SimpleMessageBuilder implements MessageBuilder
 			$args['%{' . $k . '}'] = $v;
 		}
 
-		$mail = new Message;
-		$mail->setFrom($from)
-			->setSubject(strtr($content->getSubject(), $args));
+		$mail->setSubject(strtr($content->getSubject(), $args));
+
 		if ($content->getBody()) {
 			$mail->setBody(strtr($content->getBody(), $args));
 		}
+
 		if ($content->getHtml()) {
 			$mail->setHtmlBody(strtr($content->getHtml(), $args));
 		}
+
 		$mail->addTo($recipient);
+
 		return $mail;
 	}
 

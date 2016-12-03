@@ -76,7 +76,6 @@ class MailingService
 	 * @param string $recipient Email of recipient.
 	 * @param hashtable of string $values
 	 * @param string $sender Email of sender.
-	 * @return Message
 	 */
 	function send($code, $recipient, array $values = [], $sender = NULL)
 	{
@@ -85,7 +84,29 @@ class MailingService
 		Validators::assert($recipient, 'string:1..');
 		$sender = $sender ?: $this->sender;
 
-		$mail = $this->builder->compose($sender, $recipient, $this->provider->load($code), $values);
+		$mail = new Message;
+		$mail->setFrom($sender);
+
+		$this->sendMessage($mail, $code, $recipient, $values);
+	}
+
+
+
+	/**
+	 * @param Message $mail Instance s nastavenýma specielníma hodnotama.
+	 * @param string $code Name of content, whitch load from provider.
+	 * @param string $recipient Email of recipient.
+	 * @param hashtable of string $values
+	 */
+	function sendMessage(Message $mail, $code, $recipient, array $values = [])
+	{
+		Validators::assert($code, 'string:1..');
+
+		if ( ! $mail->getFrom()) {
+			$mail->setFrom($this->sender);
+		}
+
+		$mail = $this->builder->compose($mail, $recipient, $this->provider->load($code), $values);
 
 		if ($this->config & self::CONFIG_SEND && $this->mailer) {
 			$this->mailer->send($mail);
