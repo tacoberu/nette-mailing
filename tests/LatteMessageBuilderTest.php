@@ -9,6 +9,7 @@ namespace Taco\Nette\Mailing;
 use Latte;
 use Nette\Application\LinkGenerator;
 use Nette\Bridges\ApplicationLatte\ILatteFactory;
+use Nette\Mail\Message;
 use PHPUnit_Framework_TestCase;
 
 
@@ -62,10 +63,12 @@ class LatteMessageBuilderTest extends PHPUnit_Framework_TestCase
 			->method("create")
 			->will($this->returnValue($latte));
 
+		$msg = new Message;
+		$msg->setFrom('a@dom.cz');
 		$content = new MailContent('a', 'b', 'c');
 		$builder = new LatteMessageBuilder($this->linkGenerator, $this->latteFactory);
 
-		$mail = $builder->compose('a@dom.cz', 'b@dom.cz', $content);
+		$mail = $builder->compose($msg, 'b@dom.cz', $content);
 		$this->assertEquals('b', $mail->body);
 		$this->assertEquals('c', $mail->htmlBody);
 		$this->assertEquals('a', $mail->getHeader('Subject'));
