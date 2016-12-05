@@ -12,7 +12,15 @@ use Nette\Utils\Validators;
 
 
 /**
- * Služba zastřešující komplet odesílání emailů.
+ * Služba zastřešující komplet odesílání emailů. Zdroj obsahu je pojmenován a získán
+ * pomocí MessageTemplateProvider. Obsah je následně sestaven pomocí MessageBuilder.
+ * Email se volitelně může zalogovat pomocí Logger, a odeslat pomocí IMailer.
+ *
+ * K dispozici je dvojice metod. Methoda send() slouží jako zkratka pro nejpohodlnější
+ * odeslání emailu. Methoda sendMessage() zase umožňuje komplexnější vymazlení odesílaného
+ * Message objektu. V tomto případě methoda slouží hlavně pro sestavení obsahu (plainBody i htmlBody)
+ * a jejího zalogování či odeslání.
+ *
  * @author Martin Takáč <martin@takac.name>
  */
 class MailingService
@@ -72,38 +80,50 @@ class MailingService
 
 
 	/**
+	 * Shortcut for easy sending of mail.
+	 *
 	 * @param string $code Name of content, whitch load from provider.
-	 * @param string $recipient Email of recipient.
-	 * @param hashtable of string $values
+	 * @param hashtable of string $values Nahrazovaný obsah v šabloně.
+	 * @param array of string $recipients Email of recipient.
 	 * @param string $sender Email of sender.
+	 *
+	 * @return bool
 	 */
-	function send($code, $recipient, array $values = [], $sender = NULL)
+	function send($code, array $values, array $recipients, $sender = NULL)
 	{
 		Validators::assert($code, 'string:1..');
 		Validators::assert($sender, 'string:1..|null');
-		Validators::assert($recipient, 'string:1..');
 		$sender = $sender ?: $this->sender;
 
 		$mail = new Message;
 		$mail->setFrom($sender);
 
-		$this->sendMessage($mail, $code, $recipient, $values);
+		return $this->sendMessage($mail, $code, $values, $recipients);
 	}
 
 
 
 	/**
+	 * Send complexity setting of mail.
+	 *
 	 * @param Message $mail Instance s nastavenýma specielníma hodnotama.
 	 * @param string $code Name of content, whitch load from provider.
-	 * @param string $recipient Email of recipient.
-	 * @param hashtable of string $values
+	 * @param hashtable of string $values Nahrazovaný obsah v šabloně.
+	 * @param array of string $recipients Email of recipient.
+	 *
+	 * @return bool
 	 */
-	function sendMessage(Message $mail, $code, $recipient, array $values = [])
+	function sendMessage(Message $mail, $code, array $values, array $recipients)
 	{
 		Validators::assert($code, 'string:1..');
 
 		if ( ! $mail->getFrom()) {
 			$mail->setFrom($this->sender);
+		}
+
+		foreach ($recipients as $recipient) {
+			Validators::assert($recipient, 'string:1..');
+			$mail->addTo($recipient);
 		}
 
 		$mail = $this->builder->compose($mail, $recipient, $this->provider->load($code), $values);
@@ -115,6 +135,8 @@ class MailingService
 		if ($this->config & self::CONFIG_LOG && $this->logger) {
 			$this->logger->log($code, $mail);
 		}
+
+		return TRUE;
 	}
 
 }

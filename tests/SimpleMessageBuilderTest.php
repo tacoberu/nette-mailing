@@ -22,12 +22,12 @@ class SimpleMessageBuilderTest extends PHPUnit_Framework_TestCase
 		$builder = new SimpleMessageBuilder;
 		$msg = new Message;
 		$msg->setFrom('a@dom.cz');
-		$mail = $builder->compose($msg, 'b@dom.cz', $content);
+		$mail = $builder->compose($msg, $content);
 		$this->assertEquals('b', $mail->body);
 		$this->assertEquals('c', $mail->htmlBody);
 		$this->assertEquals('a', $mail->getHeader('Subject'));
 		$this->assertEquals(['a@dom.cz' => NULL], $mail->getHeader('From'));
-		$this->assertEquals(['b@dom.cz' => NULL], $mail->getHeader('To'));
+		$this->assertNull($mail->getHeader('To'));
 	}
 
 
@@ -38,10 +38,11 @@ class SimpleMessageBuilderTest extends PHPUnit_Framework_TestCase
 		$msg = new Message;
 		$msg->setFrom('a@dom.cz');
 		$builder = new SimpleMessageBuilder;
-		$mail = $builder->compose($msg, 'b@dom.cz', $content, ['foo' => 'Lorem ipsum doler ist.', 'from' => 'i']);
+		$mail = $builder->compose($msg, $content, ['foo' => 'Lorem ipsum doler ist.', 'from' => 'i']);
 		$this->assertEquals('body Lorem ipsum doler ist. d efg Lorem ipsum doler ist.', $mail->body);
 		$this->assertEquals('html Lorem ipsum doler ist. d efg Lorem ipsum doler ist.', $mail->htmlBody);
 		$this->assertEquals('a from: i', $mail->getHeader('Subject'));
+		$this->assertNull($mail->getHeader('To'));
 	}
 
 }
