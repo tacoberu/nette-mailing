@@ -59,15 +59,12 @@ class LatteMessageBuilder implements MessageBuilder
 
 	/**
 	 * @param Message $mail
-	 * @param string $recipient Email of recipient.
 	 * @param MailContent $content
 	 * @param hashtable of string $values
 	 * @return Message
 	 */
-	function compose(Message $mail, $recipient, MailContent $content, array $values = [])
+	function compose(Message $mail, MailContent $content, array $values = [])
 	{
-		Validators::assert($recipient, 'email');
-
 		$args = array_merge($this->defaults, $values, ['_control' => $this->linkGenerator]);
 		$latte = $this->getLatte();
 
@@ -80,8 +77,6 @@ class LatteMessageBuilder implements MessageBuilder
 		if ($content->getHtml()) {
 			$mail->setHtmlBody($latte->renderToString($content->getHtml(), $args));
 		}
-
-		$mail->addTo($recipient);
 
 		return $mail;
 	}
