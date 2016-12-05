@@ -35,12 +35,11 @@ interface MessageBuilder
 
 	/**
 	 * @param Message
-	 * @param string $recipient Who is receiving is mail.
 	 * @param MailContent $content
 	 * @param hashtable of string $values
 	 * @return Message
 	 */
-	function compose(Message $mail, $recipient, MailContent $content, array $values = []);
+	function compose(Message $mail, MailContent $content, array $values = []);
 
 }
 

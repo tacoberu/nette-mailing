@@ -68,12 +68,12 @@ class LatteMessageBuilderTest extends PHPUnit_Framework_TestCase
 		$content = new MailContent('a', 'b', 'c');
 		$builder = new LatteMessageBuilder($this->linkGenerator, $this->latteFactory);
 
-		$mail = $builder->compose($msg, 'b@dom.cz', $content);
+		$mail = $builder->compose($msg, $content);
 		$this->assertEquals('b', $mail->body);
 		$this->assertEquals('c', $mail->htmlBody);
 		$this->assertEquals('a', $mail->getHeader('Subject'));
 		$this->assertEquals(['a@dom.cz' => NULL], $mail->getHeader('From'));
-		$this->assertEquals(['b@dom.cz' => NULL], $mail->getHeader('To'));
+		$this->assertNull($mail->getHeader('To'));
 	}
 
 }
