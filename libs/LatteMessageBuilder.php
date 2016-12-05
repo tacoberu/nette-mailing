@@ -8,10 +8,8 @@ namespace Taco\Nette\Mailing;
 
 use Latte\Loaders\StringLoader;
 use Nette\Mail\Message,
-	Nette\Utils\Validators,
-	Nette\Application\LinkGenerator,
-	Nette\Bridges\ApplicationLatte\ILatteFactory,
-	Nette\Bridges\ApplicationLatte\UIMacros;
+	Nette\Utils\Validators;
+use Nette\Templates\LatteFilter;
 
 
 /**
@@ -22,14 +20,14 @@ class LatteMessageBuilder implements MessageBuilder
 {
 
 	/**
-	 * @var LinkGenerator
+	 * @var ?
 	 */
-	private $linkGenerator;
+	private $translator;
 
 	/**
-	 * @var ILatteFactory
+	 * @var StringTemplate
 	 */
-	private $latteFactory;
+	private $template;
 
 	/**
 	 * @var array
@@ -37,10 +35,9 @@ class LatteMessageBuilder implements MessageBuilder
 	private $defaults = [];
 
 
-	function __construct(LinkGenerator $generator, ILatteFactory $latteFactory)
+	function __construct($translator)
 	{
-		$this->linkGenerator = $generator;
-		$this->latteFactory = $latteFactory;
+		$this->translator = $translator;
 	}
 
 
@@ -58,6 +55,19 @@ class LatteMessageBuilder implements MessageBuilder
 
 
 	/**
+	 * @return StringTemplate
+	 */
+	function getTemplate()
+	{
+		if (empty($this->template)) {
+			$this->template = $this->createTemplate();
+		}
+		return $this->template;
+	}
+
+
+
+	/**
 	 * @param Message $mail
 	 * @param MailContent $content
 	 * @param hashtable of string $values
@@ -65,17 +75,15 @@ class LatteMessageBuilder implements MessageBuilder
 	 */
 	function compose(Message $mail, MailContent $content, array $values = [])
 	{
-		$args = array_merge($this->defaults, $values, ['_control' => $this->linkGenerator]);
-		$latte = $this->getLatte();
+		$args = array_merge($this->defaults, $values);
 
-		$mail->setSubject($latte->renderToString($content->getSubject(), $args));
-
+		$mail->setSubject($this->renderToString($content->getSubject(), $args));
 		if ($content->getBody()) {
-			$mail->setBody($latte->renderToString($content->getBody(), $args));
+			$mail->setBody($this->renderToString($content->getBody(), $args));
 		}
 
 		if ($content->getHtml()) {
-			$mail->setHtmlBody($latte->renderToString($content->getHtml(), $args));
+			$mail->setHtmlBody($this->renderToString($content->getHtml(), $args));
 		}
 
 		return $mail;
@@ -84,15 +92,40 @@ class LatteMessageBuilder implements MessageBuilder
 
 
 	/**
-	 * @return Latte\Engine
+	 * @param string
+	 * @return string
 	 */
-	private function getLatte()
+	private function renderToString($content, array $args = [])
 	{
-		$latte = $this->latteFactory->create();
-		$latte->setLoader(new StringLoader);
-		UIMacros::install($latte->getCompiler());
+		$template = $this->getTemplate()
+			->setContent($content);
+		foreach ($args as $key => $val) {
+			$template->$key = $val;
+		}
+		return (string) $template;
+	}
 
-		return $latte;
+
+
+	/**
+	 * @param string
+	 * @return StringTemplate
+	 */
+	private function createTemplate()
+	{
+		$template = new StringTemplate;
+		$template->registerFilter(new LatteFilter);
+		$template->registerHelper('escape', 'Nette\Templates\TemplateHelpers::escapeHtml');
+		$template->registerHelper('escapeUrl', 'rawurlencode');
+		$template->registerHelper('stripTags', 'strip_tags');
+		$template->registerHelper('nl2br', 'nl2br');
+		$template->registerHelper('substr', 'iconv_substr');
+		$template->registerHelper('repeat', 'str_repeat');
+		$template->registerHelper('implode', 'implode');
+		$template->registerHelper('number', 'number_format');
+		$template->registerHelperLoader('Nette\Templates\TemplateHelpers::loader');
+
+		return $template;
 	}
 
 }
