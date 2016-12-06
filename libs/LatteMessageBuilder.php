@@ -35,9 +35,11 @@ class LatteMessageBuilder implements MessageBuilder
 	private $defaults = [];
 
 
-	function __construct($translator)
+	function __construct($translator, $linkBuilder)
 	{
 		$this->translator = $translator;
+		$this->setOption('control', $linkBuilder);
+		$this->setOption('presenter', $linkBuilder);
 	}
 
 
