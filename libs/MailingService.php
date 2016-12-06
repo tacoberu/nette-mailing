@@ -67,7 +67,7 @@ class MailingService
 	 * @param MessageBuilder $builder Making mail from template. Template is plain text, or latte template, etc.
 	 * @param string $sender Default email of sender.
 	 */
-	function __construct(IMailer $mailer, MessageTemplateProvider $provider, Logger $logger, MessageBuilder $builder, $sender = NULL)
+	function __construct(IMailer $mailer, MessageTemplateProvider $provider, Logger $logger, MessageBuilder $builder, $sender = NULL, $config = NULL)
 	{
 		Validators::assert($sender, 'string:1..|null');
 		$this->mailer = $mailer;
@@ -75,6 +75,9 @@ class MailingService
 		$this->provider = $provider;
 		$this->builder = $builder;
 		$this->sender = $sender;
+		if ($config) {
+			$this->config = $config;
+		}
 	}
 
 
