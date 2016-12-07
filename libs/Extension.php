@@ -46,7 +46,8 @@ final class Extension extends CompilerExtension
 		$builder->addDefinition($this->prefix('mailService'))
 			->setClass('Taco\Nette\Mailing\MailingService')
 			->setArguments([
-				'sender' => $config['sender']
+				'sender' => $config['sender'],
+				'config' => $config['do']
 			]);
 	}
 
