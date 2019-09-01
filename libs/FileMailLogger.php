@@ -17,8 +17,11 @@ use RuntimeException;
  * @credits by Pavel Janda <me@paveljanda.com>
  * @author Martin Takáč <martin@takac.name>
  */
-class FileMailLogger extends Nette\Object implements Logger
+class FileMailLogger implements Logger
 {
+
+	use Nette\SmartObject;
+
 
 	const LOG_EXTENSION = 'eml';
 

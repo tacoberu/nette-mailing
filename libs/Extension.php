@@ -40,11 +40,11 @@ final class Extension extends CompilerExtension
 		$builder = $this->getContainerBuilder();
 
 		$builder->addDefinition($this->prefix('mailLogger'))
-			->setClass('Taco\Nette\Mailing\FileMailLogger')
+			->setClass(FileMailLogger::class)
 			->setArguments([$config['log_directory']]);
 
 		$builder->addDefinition($this->prefix('mailService'))
-			->setClass('Taco\Nette\Mailing\MailingService')
+			->setClass(MailingService::class)
 			->setArguments([
 				'sender' => $config['sender'],
 				'config' => $config['do']

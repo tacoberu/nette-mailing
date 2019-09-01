@@ -54,7 +54,7 @@ class FileBaseMessageTemplateProviderTest extends PHPUnit_Framework_TestCase
 	function testTemplateIsNotFound()
 	{
 		$this->setExpectedException('RuntimeException',
-				'Template `not-found\' is not found (vfs://foo/not-found).');
+				'Template `not-found\' is not found in \'vfs://foo/not-found\'. Template must be file without extension.');
 		$provider = new FileBaseMessageTemplateProvider(vfsStream::url('foo'));
 		$provider->load('not-found');
 	}

@@ -15,9 +15,16 @@ use Nette\Utils\Validators;
  * Adresát se dodá jinudy. Stejně tak jako proměnné hodnoty obsahu majlu.
  *
  * @author Martin Takáč <martin@takac.name>
+ *
+ * @property string $subject
+ * @property string $body
+ * @property string $html
  */
-class MailContent extends Nette\Object
+class MailContent
 {
+
+	use Nette\SmartObject;
+
 
 	/**
 	 * @var string

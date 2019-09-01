@@ -12,7 +12,9 @@ use RuntimeException;
 
 
 /**
- * Poskytuje šablony emailů.
+ * Hledá šablony v adresářové struktuře. Šablona je soubor bez přípony. Název souboru korensponduje s názvem šablony.
+ * Soubor začíná hlavičkou: "subject: textu předmětu" oddělený jedním prázdným řádkem a následuj text emailu ve formátu html. Html se následně automagicky převádí na plain text.
+ *
  * @author Martin Takáč <martin@takac.name>
  */
 class FileBaseMessageTemplateProvider implements MessageTemplateProvider
@@ -80,7 +82,7 @@ class FileBaseMessageTemplateProvider implements MessageTemplateProvider
 		}
 
 		if ( ! isset($path)) {
-			throw new RuntimeException("Template `{$name}' is not found ({$this->path}/{$name}).");
+			throw new RuntimeException("Template `{$name}' is not found in '{$this->path}/{$name}'. Template must be file without extension.");
 		}
 
 		$content = file_get_contents($path);
