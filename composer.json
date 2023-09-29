@@ -16,10 +16,6 @@
 	},
 	"require-dev": {
 		"phpunit/phpunit": "^4",
-		"mikey179/vfsStream": "^1.6",
-		"tacoberu/phpcs-coding-standard": "@dev",
-		"sstalle/php7cc": "^1.1",
-		"phpmd/phpmd": "^2.5",
 		"nette/nette": "^v0.9",
 		"nette/utils": "^v0.9"
 	},
